@@ -12,12 +12,6 @@
     <!-- Header -->
     <div class="header">
       <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Novatra Logo" class="logo">
-
-      <!-- Switch para dark mode -->
-      <label class="switch">
-        <input type="checkbox" id="toggle-theme">
-        <span class="slider"></span>
-      </label>
     </div>
 
     <h1>Relatório enviado com sucesso! 🎉</h1>
@@ -26,13 +20,24 @@
     <!-- Botões -->
     <div class="actions">
       <a href="{{ url_for('imc.index') }}" class="btn-primary">⬅ Voltar para o início</a>
-      {% if file_url %}
-      <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
-      {% endif %}
     </div>
   </div>
 
-  <!-- Script de tema -->
-  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script>
+    // Aplica o tema salvo no localStorage
+    document.addEventListener("DOMContentLoaded", () => {
+      const theme = localStorage.getItem("theme") || "light";
+      const body = document.body;
+      const logo = document.getElementById("logo");
+
+      if (theme === "dark") {
+        body.classList.add("dark-mode");
+        logo.src = "{{ url_for('static', filename='img/novatra_logo_white.png') }}";
+      } else {
+        body.classList.remove("dark-mode");
+        logo.src = "{{ url_for('static', filename='img/novatra_logo_black.png') }}";
+      }
+    });
+  </script>
 </body>
 </html>
