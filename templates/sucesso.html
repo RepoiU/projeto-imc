@@ -20,8 +20,10 @@
     <!-- Botões -->
     <div class="actions">
       <a href="{{ url_for('imc.index') }}" class="btn-primary">⬅ Voltar para o início</a>
+
+      {# Só mostra o botão de download se realmente tiver file_url #}
       {% if file_url %}
-      <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
+        <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
       {% endif %}
     </div>
   </div>

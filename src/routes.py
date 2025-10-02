@@ -79,7 +79,9 @@ def calculo():
         base_url = request.url_root
         file_url = urljoin(base_url, f"arquivo/{quote(filename)}")
 
-        # renderiza a página de sucesso passando o link para download
+        # 🔥 ALTERAÇÃO AQUI
+        # em vez de retornar JSON, agora renderiza o sucesso.html
+        # e já passa o file_url para o botão de download funcionar
         return render_template("sucesso.html", file_url=file_url)
 
     except Exception:
@@ -97,5 +99,6 @@ def index():
 
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    # se abrir direto /sucesso sem passar file_url, não quebra
+    # 🔥 ALTERAÇÃO AQUI
+    # adicionamos file_url=None para não quebrar caso a pessoa acesse direto /sucesso
     return render_template("sucesso.html", file_url=None)

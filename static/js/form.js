@@ -27,35 +27,59 @@ document.addEventListener("DOMContentLoaded", function () {
   inputTel.addEventListener("countrychange", aplicarMascaraTel);
   aplicarMascaraTel();
 
-  // ===== Altura =====
+  // ===== Altura (X,XX) =====
   const inputAltura = document.getElementById("altura");
   if (inputAltura) {
-    inputAltura.addEventListener("blur", () => {
-      let valor = inputAltura.value.replace(/\D/g, ""); // só dígitos
-      if (valor.length === 3) {
-        valor = valor[0] + "," + valor.slice(1); // 173 -> 1,73
-      } else if (valor.length === 4) {
-        valor = valor[0] + "," + valor.slice(1, 3); // 1850 -> 1,85
+    inputAltura.addEventListener("input", () => {
+      let valor = inputAltura.value.replace(/\D/g, ""); // apenas dígitos
+
+      if (valor.length > 3) {
+        valor = valor.slice(0, 3); // limite 3 dígitos
       }
+
+      if (valor.length >= 2) {
+        valor = valor[0] + "," + valor.slice(1);
+      }
+
       inputAltura.value = valor;
     });
   }
 
-  // ===== Peso =====
+  // ===== Peso (XXX,XX) =====
   const inputPeso = document.getElementById("peso");
   if (inputPeso) {
-    inputPeso.addEventListener("blur", () => {
-      let valor = inputPeso.value.replace(",", ".");
-      valor = parseFloat(valor);
-      if (!isNaN(valor)) {
-        inputPeso.value = valor.toFixed(2).replace(".", ","); // sempre vírgula
+    inputPeso.addEventListener("input", () => {
+      let valor = inputPeso.value.replace(/\D/g, ""); // só números
+
+      if (valor.length > 5) {
+        valor = valor.slice(0, 5); // limite 5 dígitos (99999 -> 999,99)
       }
+
+      if (valor.length >= 3) {
+        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
+      }
+
+      inputPeso.value = valor;
     });
   }
 
   // ===== Envio do formulário =====
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    // Validação de altura e peso antes do envio
+    const alturaVal = parseFloat((form.altura.value || "0").replace(",", "."));
+    const pesoVal = parseFloat((form.peso.value || "0").replace(",", "."));
+
+    if (isNaN(alturaVal) || alturaVal < 1.0) {
+      alert("⚠️ Altura inválida! Insira um valor a partir de 1,00 m.");
+      return;
+    }
+
+    if (isNaN(pesoVal) || pesoVal < 20.0) {
+      alert("⚠️ Peso inválido! Insira um valor a partir de 20 kg.");
+      return;
+    }
 
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
