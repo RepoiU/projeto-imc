@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, send_from_directory
+from flask import Blueprint, request, jsonify, render_template, send_from_directory, session  # ✅ adicionado session aqui
 from urllib.parse import urljoin, quote
 import traceback
 import base64
@@ -79,6 +79,9 @@ def calculo():
         base_url = request.url_root
         file_url = urljoin(base_url, f"arquivo/{quote(filename)}")
 
+        # ✅ Salva na sessão para reaproveitar em /sucesso
+        session["file_url"] = file_url
+
         # renderiza a página de sucesso passando o link para download
         return render_template("sucesso.html", file_url=file_url)
 
@@ -97,8 +100,9 @@ def index():
 
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    # se abrir direto /sucesso sem passar file_url, não quebra
-    return render_template("sucesso.html", file_url=None)
+    # ✅ Recupera da sessão para garantir que sempre tenha o file_url
+    file_url = session.get("file_url")
+    return render_template("sucesso.html", file_url=file_url)
 
 
 # 🔥 Nova rota para servir os relatórios PDF
