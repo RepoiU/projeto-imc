@@ -1,0 +1,220 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6fc3df, #b6e0f5);
+  transition: background 0.3s, color 0.3s;
+}
+
+.container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  animation: fadeIn 1s ease-in-out;
+  transition: background 0.3s, color 0.3s;
+}
+
+.logo {
+  width: 120px;
+}
+
+/* Header com logo e switch */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+  transition: color 0.3s;
+}
+
+p {
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  color: #555;
+  transition: color 0.3s;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+input:focus {
+  border-color: #6a5acd;
+  box-shadow: 0 0 8px rgba(106,90,205,0.3);
+}
+
+button {
+  padding: 14px;
+  background: #6a5acd;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #5847c6;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* Input do telefone igual aos outros */
+.iti {
+  width: 100%;
+}
+
+.iti input {
+  width: 100%;
+  padding: 12px 12px 12px 65px;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.iti input:focus {
+  border-color: #6a5acd;
+  box-shadow: 0 0 8px rgba(106,90,205,0.3);
+}
+
+/* Remove borda/fundo do container da bandeira */
+.iti__flag-container {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Ajusta posição da bandeira */
+.iti__selected-flag {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding-left: 8px !important;
+}
+
+/* ===== Dark Mode ===== */
+body.dark-mode {
+  background: linear-gradient(135deg, #1e1e1e, #2a2a2a);
+  color: #f5f5f5;
+}
+
+body.dark-mode .container {
+  background: #1e1e1e;
+  color: #f5f5f5;
+}
+
+body.dark-mode h1 {
+  color: #f5f5f5;
+}
+
+body.dark-mode p {
+  color: #ccc;
+}
+
+body.dark-mode input {
+  background: #2b2b2b;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+body.dark-mode input::placeholder {
+  color: #aaa;
+}
+
+body.dark-mode input:focus {
+  border-color: #9a8cff;
+  box-shadow: 0 0 8px rgba(154,140,255,0.5);
+}
+
+body.dark-mode button {
+  background: #9a8cff;
+}
+
+body.dark-mode button:hover {
+  background: #7f6cd9;
+}
+
+/* ===== Switch ===== */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "☀️";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  background: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #6a5acd;
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+  content: "🌙";
+}

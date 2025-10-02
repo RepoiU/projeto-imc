@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcule seu IMC - Novatra</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+
+
+  <!-- CSS do intl-tel-input -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+  
+</head>
+<body>
+  <div class="container">
+    
+    <!-- Header com logo e switch -->
+    <div class="header">
+      <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Logo Novatra" class="logo">
+      <label class="switch">
+        <input type="checkbox" id="toggle-theme">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <h1>Calcule seu IMC agora!</h1>
+    <p>Preencha seus dados e receba automaticamente um relatório em PDF no seu e-mail.</p>
+    
+    <!-- Formulário -->
+    <form id="imcForm" action="{{ url_for('imc.calculo') }}" method="post">
+      <input type="text" name="nome" placeholder="Nome" required>
+      <input type="text" name="sobrenome" placeholder="Sobrenome" required>
+      <input type="text" name="cidade" placeholder="Cidade" required>
+      <input type="email" name="email" placeholder="Email" required>
+
+      <!-- Telefone com bandeira -->
+      <input id="telefone" type="tel" name="numero" placeholder="Número" required>
+
+      <!-- Altura e Peso -->
+      <input id="altura" type="text" name="altura" placeholder="Altura (m)" required inputmode="numeric">
+      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" required inputmode="numeric">
+
+      <button type="submit">Gerar meu relatório ➜</button>
+    </form>
+  </div>
+
+  <!-- Libs externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+
+  <!-- Seus scripts -->
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>
