@@ -34,11 +34,13 @@ document.addEventListener("DOMContentLoaded", function () {
       let valor = inputAltura.value.replace(/\D/g, ""); // apenas dígitos
 
       if (valor.length > 3) {
-        valor = valor.slice(0, 3); // limite 3 dígitos
+        valor = valor.slice(0, 3); // limita 3 dígitos
       }
 
-      if (valor.length >= 2) {
-        valor = valor[0] + "," + valor.slice(1);
+      if (valor.length === 3) {
+        valor = valor[0] + "," + valor.slice(1, 3); // 173 -> 1,73
+      } else if (valor.length === 2) {
+        valor = valor[0] + "," + valor[1]; // 15 -> 1,5
       }
 
       inputAltura.value = valor;
@@ -49,14 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const inputPeso = document.getElementById("peso");
   if (inputPeso) {
     inputPeso.addEventListener("input", () => {
-      let valor = inputPeso.value.replace(/\D/g, ""); // só números
+      let valor = inputPeso.value.replace(/\D/g, ""); // apenas dígitos
 
       if (valor.length > 5) {
-        valor = valor.slice(0, 5); // limite 5 dígitos (99999 -> 999,99)
+        valor = valor.slice(0, 5); // limita 5 dígitos
       }
 
-      if (valor.length >= 3) {
-        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
+      if (valor.length > 2) {
+        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2); // insere vírgula antes dos 2 últimos
       }
 
       inputPeso.value = valor;
