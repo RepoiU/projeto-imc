@@ -3,21 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sucesso - Novatra</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-
-  <!-- CSS -->
+  <title>Relatório enviado - Novatra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
   <div class="container">
-    <h1>✅ Relatório gerado com sucesso!</h1>
-    <p>Verifique seu e-mail, enviamos seu PDF com os resultados.</p>
-    <a href="{{ url_for('imc.index') }}">Voltar</a>
-      <button>Voltar ao início</button>
-    </a>
+    <img src="{{ url_for('static', filename='img/novatra_logo_white.png') }}" alt="Novatra Logo" class="logo">
+    <h1>Relatório enviado com sucesso! 🎉</h1>
+    <p>Verifique seu e-mail, seu relatório de IMC já foi enviado.</p>
+    <a href="{{ url_for('imc.index') }}">⬅ Voltar para o início</a>
   </div>
 </body>
 </html>
