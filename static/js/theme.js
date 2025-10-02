@@ -1,27 +1,33 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById('toggle-theme');
-  const body = document.body;
-  const logo = document.getElementById('logo');
+// theme.js
 
-  // Carrega tema salvo
-  if (localStorage.getItem('theme') === 'dark') {
-    body.classList.add('dark-mode');
-    logo.src = "/static/img/novatra_logo_white.png";
-    toggle.checked = true;
+document.addEventListener("DOMContentLoaded", function () {
+  const body = document.body;
+  const toggle = document.getElementById("toggle-theme");
+  const logo = document.getElementById("logo");
+
+  // ==== Carrega tema salvo ====
+  const savedTheme = localStorage.getItem("theme") || "light";
+  if (savedTheme === "dark") {
+    body.classList.add("dark");
+    if (toggle) toggle.checked = true;
+    if (logo) logo.src = "/static/img/novatra_logo_white.png";
   } else {
-    logo.src = "/static/img/novatra_logo_black.png";
+    if (logo) logo.src = "/static/img/novatra_logo_black.png";
   }
 
-  // Alterna entre claro/escuro
-  toggle.addEventListener('change', () => {
-    if (toggle.checked) {
-      body.classList.add('dark-mode');
-      logo.src = "/static/img/novatra_logo_white.png";
-      localStorage.setItem('theme', 'dark');
-    } else {
-      body.classList.remove('dark-mode');
-      logo.src = "/static/img/novatra_logo_black.png";
-      localStorage.setItem('theme', 'light');
-    }
-  });
+  // ==== Alterna tema ====
+  if (toggle) {
+    toggle.addEventListener("change", () => {
+      if (toggle.checked) {
+        body.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+        if (logo) logo.src = "/static/img/novatra_logo_white.png";
+      } else {
+        body.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+        if (logo) logo.src = "/static/img/novatra_logo_black.png";
+      }
+    });
+  }
 });
+

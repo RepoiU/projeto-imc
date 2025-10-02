@@ -12,6 +12,12 @@
     <!-- Header -->
     <div class="header">
       <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Novatra Logo" class="logo">
+
+      <!-- Switch para dark mode -->
+      <label class="switch">
+        <input type="checkbox" id="toggle-theme">
+        <span class="slider"></span>
+      </label>
     </div>
 
     <h1>Relatório enviado com sucesso! 🎉</h1>
@@ -26,21 +32,7 @@
     </div>
   </div>
 
-  <script>
-    // Aplica o tema salvo no localStorage
-    document.addEventListener("DOMContentLoaded", () => {
-      const theme = localStorage.getItem("theme") || "light";
-      const body = document.body;
-      const logo = document.getElementById("logo");
-
-      if (theme === "dark") {
-        body.classList.add("dark");
-        logo.src = "{{ url_for('static', filename='img/novatra_logo_white.png') }}";
-      } else {
-        body.classList.remove("dark");
-        logo.src = "{{ url_for('static', filename='img/novatra_logo_black.png') }}";
-      }
-    });
-  </script>
+  <!-- Script de tema -->
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </body>
 </html>

@@ -219,6 +219,7 @@ input:checked + .slider:before {
   content: "🌙";
 }
 
+/* ===== Botões da página de sucesso ===== */
 .actions {
   margin-top: 20px;
   display: flex;
@@ -254,4 +255,24 @@ input:checked + .slider:before {
 
 .btn-secondary:hover {
   background: #e6e6e6;
+}
+
+/* Dark mode dos botões */
+body.dark-mode .btn-primary {
+  background: #9a8cff;
+  color: #fff;
+}
+
+body.dark-mode .btn-primary:hover {
+  background: #7f6cd9;
+}
+
+body.dark-mode .btn-secondary {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+body.dark-mode .btn-secondary:hover {
+  background: #444;
 }
