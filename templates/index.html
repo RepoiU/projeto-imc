@@ -4,40 +4,88 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calcule seu IMC - Novatra</title>
+
+  <!-- CSS principal -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+
+  <!-- CSS intl-tel-input -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
 </head>
 <body>
   <div class="container">
-    <img src="{{ url_for('static', filename='img/novatra_logo_white.png') }}" alt="Novatra Logo" class="logo">
+    
+    <!-- Header com logo e switch -->
+    <div class="header">
+      <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Logo Novatra" class="logo">
+      <label class="switch">
+        <input type="checkbox" id="toggle-theme">
+        <span class="slider"></span>
+      </label>
+    </div>
+
     <h1>Calcule seu IMC agora!</h1>
     <p>Preencha seus dados e receba automaticamente um relatório em PDF no seu e-mail.</p>
-
+    
+    <!-- Formulário -->
     <form id="form-imc" action="{{ url_for('imc.calculo') }}" method="post">
       <input type="text" name="nome" placeholder="Nome" required>
       <input type="text" name="sobrenome" placeholder="Sobrenome" required>
       <input type="text" name="cidade" placeholder="Cidade" required>
       <input type="email" name="email" placeholder="Email" required>
-      <input type="tel" name="numero" placeholder="Número" required>
-      <input type="text" name="altura" placeholder="Altura (m)" required>
-      <input type="text" name="peso" placeholder="Peso (kg)" required>
+
+      <!-- Telefone com bandeira -->
+      <input id="telefone" type="tel" name="numero" placeholder="Número" required>
+
+      <!-- Altura e Peso -->
+      <input id="altura" type="text" name="altura" placeholder="Altura (m)" required inputmode="numeric">
+      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" required inputmode="numeric">
+
       <button type="submit">Gerar meu relatório ➜</button>
     </form>
   </div>
 
+  <!-- Libs externas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+
+  <!-- Seus scripts -->
   <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
   <script>
-    document.getElementById("form-imc").addEventListener("submit", async function(event) {
+    const form = document.getElementById("form-imc");
+    const inputTel = document.querySelector("#telefone");
+
+    // Inicializa intl-tel-input
+    const iti = window.intlTelInput(inputTel, {
+      initialCountry: "br",
+      preferredCountries: ["br", "us", "pt"],
+      separateDialCode: true
+    });
+
+    // Máscara para BR
+    let maskTel;
+    function aplicarMascaraTel() {
+      if (maskTel) maskTel.destroy();
+      if (iti.getSelectedCountryData().iso2 === "br") {
+        maskTel = IMask(inputTel, { mask: "(00) 00000-0000" });
+      }
+    }
+    inputTel.addEventListener("countrychange", aplicarMascaraTel);
+    aplicarMascaraTel();
+
+    // Formulário -> JSON
+    form.addEventListener("submit", async function(event) {
       event.preventDefault();
-      const form = event.target;
       const data = {
-        nome: form.nome.value,
-        sobrenome: form.sobrenome.value,
-        cidade: form.cidade.value,
-        email: form.email.value,
-        numero: form.numero.value,
-        altura: form.altura.value,
-        peso: form.peso.value
+        nome: form.nome.value.trim(),
+        sobrenome: form.sobrenome.value.trim(),
+        cidade: form.cidade.value.trim(),
+        email: form.email.value.trim(),
+        numero: iti.getNumber(),
+        altura: form.altura.value.trim().replace(",", "."),
+        peso: form.peso.value.trim().replace(",", ".")
       };
 
       try {
