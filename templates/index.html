@@ -28,7 +28,7 @@
     <p>Preencha seus dados e receba automaticamente um relatório em PDF no seu e-mail.</p>
     
     <!-- Formulário -->
-    <form id="imcForm" action="{{ url_for('imc.calculo') }}" method="post">
+    <form action="{{ url_for('imc.calculo') }}" method="post">
       <input type="text" name="nome" placeholder="Nome" required>
       <input type="text" name="sobrenome" placeholder="Sobrenome" required>
       <input type="text" name="cidade" placeholder="Cidade" required>
