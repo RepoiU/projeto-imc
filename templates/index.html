@@ -38,8 +38,10 @@
       <input id="telefone" type="tel" name="numero" placeholder="Número" required>
 
       <!-- Altura e Peso -->
-      <input id="altura" type="text" name="altura" placeholder="Altura (m)" required inputmode="numeric">
-      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" required inputmode="numeric">
+      <input id="altura" type="text" name="altura" placeholder="Altura (m)" 
+             required inputmode="numeric" pattern="[0-9,]*" maxlength="4">
+      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" 
+             required inputmode="numeric" pattern="[0-9,]*" maxlength="6">
 
       <button type="submit">Gerar meu relatório ➜</button>
     </form>
@@ -56,6 +58,8 @@
   <script>
     const form = document.getElementById("form-imc");
     const inputTel = document.querySelector("#telefone");
+    const inputAltura = document.querySelector("#altura");
+    const inputPeso = document.querySelector("#peso");
 
     // Inicializa intl-tel-input
     const iti = window.intlTelInput(inputTel, {
@@ -75,7 +79,29 @@
     inputTel.addEventListener("countrychange", aplicarMascaraTel);
     aplicarMascaraTel();
 
-    // Formulário -> JSON
+    // ===== Altura (X,XX) =====
+    inputAltura.addEventListener("input", () => {
+      let valor = inputAltura.value.replace(/\D/g, ""); // apenas dígitos
+      if (valor.length > 3) valor = valor.slice(0, 3); // limita a 3 dígitos
+
+      if (valor.length >= 2) {
+        valor = valor[0] + "," + valor.slice(1);
+      }
+      inputAltura.value = valor;
+    });
+
+    // ===== Peso (XXX,XX) =====
+    inputPeso.addEventListener("input", () => {
+      let valor = inputPeso.value.replace(/\D/g, ""); // apenas dígitos
+      if (valor.length > 5) valor = valor.slice(0, 5); // limita a 5 dígitos
+
+      if (valor.length > 2) {
+        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
+      }
+      inputPeso.value = valor;
+    });
+
+    // Envio do formulário
     form.addEventListener("submit", async function(event) {
       event.preventDefault();
       const data = {
@@ -95,7 +121,6 @@
           body: JSON.stringify(data)
         });
 
-        // Agora o backend já renderiza a página de sucesso direto
         if (response.ok) {
           window.location.href = "{{ url_for('imc.sucesso') }}";
         } else {

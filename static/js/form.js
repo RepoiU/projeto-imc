@@ -27,44 +27,40 @@ document.addEventListener("DOMContentLoaded", function () {
   inputTel.addEventListener("countrychange", aplicarMascaraTel);
   aplicarMascaraTel();
 
-  // ===== Altura (X,YY) =====
+  // ===== Altura (X,XX) =====
   const inputAltura = document.getElementById("altura");
   if (inputAltura) {
     inputAltura.setAttribute("inputmode", "numeric");
+    inputAltura.setAttribute("pattern", "[0-9,]*");
 
     inputAltura.addEventListener("input", () => {
-      let valor = inputAltura.value.replace(/\D/g, ""); // só dígitos
+      let valor = inputAltura.value.replace(/\D/g, ""); // só números
 
-      if (valor.length > 3) valor = valor.slice(0, 3); // no máximo 3 dígitos
+      if (valor.length > 3) valor = valor.slice(0, 3); // máximo 3 dígitos
 
-      if (valor.length === 3) {
-        valor = valor[0] + "," + valor.slice(1, 3); // 175 -> 1,75
-      } else if (valor.length === 2) {
-        valor = valor[0] + "," + valor[1] + "0"; // 17 -> 1,70
+      if (valor.length >= 2) {
+        valor = valor[0] + "," + valor.slice(1, 3); // 173 -> 1,73 | 17 -> 1,7
       } else if (valor.length === 1) {
-        valor = valor[0] + ",00"; // 1 -> 1,00
+        valor = valor[0] + ",";
       }
 
       inputAltura.value = valor;
     });
   }
 
-  // ===== Peso (XXX,YY) =====
+  // ===== Peso (XXX,XX) =====
   const inputPeso = document.getElementById("peso");
   if (inputPeso) {
     inputPeso.setAttribute("inputmode", "numeric");
+    inputPeso.setAttribute("pattern", "[0-9,]*");
 
     inputPeso.addEventListener("input", () => {
-      let valor = inputPeso.value.replace(/\D/g, "");
+      let valor = inputPeso.value.replace(/\D/g, ""); // só números
 
-      if (valor.length > 5) valor = valor.slice(0, 5); // limite 5 dígitos
+      if (valor.length > 5) valor = valor.slice(0, 5); // máximo 5 dígitos
 
       if (valor.length > 2) {
-        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2); // 7050 -> 70,50
-      } else if (valor.length === 2) {
-        valor = valor[0] + valor[1] + ",00"; // 70 -> 70,00
-      } else if (valor.length === 1) {
-        valor = valor[0] + ",00"; // 7 -> 7,00
+        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2); // insere vírgula antes dos 2 últimos
       }
 
       inputPeso.value = valor;
@@ -75,6 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    // Validação de altura e peso antes do envio
     const alturaVal = parseFloat((form.altura.value || "0").replace(",", "."));
     const pesoVal = parseFloat((form.peso.value || "0").replace(",", "."));
 
@@ -109,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(data),
       });
 
+      // Se o back já retorna HTML direto
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("text/html")) {
         const html = await res.text();
@@ -118,6 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // Se é JSON e o back manda status
       if (res.redirected) {
         window.location.href = res.url;
       } else if (res.ok) {
