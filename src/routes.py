@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_from_directory, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from urllib.parse import urljoin, quote
 import traceback
 import base64
@@ -8,7 +8,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
 
 from .pdf_utils import gerar_pdf
-from .helpers import formatar_numero, _paths
+from .helpers import formatar_numero
 
 bp = Blueprint("imc", __name__)
 
@@ -42,7 +42,7 @@ def calculo():
         # envia por email
         try:
             sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-            from_email = os.environ.get("EMAIL_SENDER")  # seu email verificado no SendGrid
+            from_email = os.environ.get("EMAIL_SENDER")
             to_email = email
 
             with open(arquivo_pdf, "rb") as f:
@@ -75,24 +75,12 @@ def calculo():
         except Exception as e:
             print("⚠️ Erro ao enviar email:", e)
 
-        # resposta para o front
+        # URL pública do arquivo
         base_url = request.url_root
         file_url = urljoin(base_url, f"arquivo/{quote(filename)}")
 
-        return jsonify({
-            "status": "ok",
-            "nome": nome,
-            "sobrenome": sobrenome,
-            "cidade": cidade,
-            "numero": numero,
-            "email": email,
-            "peso": peso,
-            "altura": altura,
-            "imc": imc,
-            "classificacao": classificacao,
-            "recomendacao": recomendacao,
-            "file_url": file_url
-        }), 200
+        # renderiza a página de sucesso passando o link para download
+        return render_template("sucesso.html", file_url=file_url)
 
     except Exception:
         return jsonify({
@@ -106,6 +94,8 @@ def calculo():
 def index():
     return render_template("index.html")
 
+
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    return render_template("sucesso.html")
+    # se abrir direto /sucesso sem passar file_url, não quebra
+    return render_template("sucesso.html", file_url=None)

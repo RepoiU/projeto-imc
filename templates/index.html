@@ -15,7 +15,7 @@
 <body>
   <div class="container">
     
-    <!-- Header com logo e switch -->
+    <!-- Header com logo e switch (dark mode) -->
     <div class="header">
       <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Logo Novatra" class="logo">
       <label class="switch">
@@ -95,11 +95,12 @@
           body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-        if (result.status === "ok") {
+        // Agora o backend já renderiza a página de sucesso direto
+        if (response.ok) {
           window.location.href = "{{ url_for('imc.sucesso') }}";
         } else {
-          alert("Erro: " + result.mensagem);
+          const result = await response.json().catch(() => ({}));
+          alert("Erro: " + (result.mensagem || "Falha no envio"));
         }
       } catch (err) {
         alert("Erro ao enviar: " + err);

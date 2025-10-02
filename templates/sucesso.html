@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relatório enviado - Novatra</title>
+  <title>Sucesso - Novatra</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
 </head>
 <body>
   <div class="container">
-    <img src="{{ url_for('static', filename='img/novatra_logo_white.png') }}" alt="Novatra Logo" class="logo">
+    <!-- Header -->
+    <div class="header">
+      <img src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Novatra Logo" class="logo">
+    </div>
+
     <h1>Relatório enviado com sucesso! 🎉</h1>
     <p>Verifique seu e-mail, seu relatório de IMC já foi enviado.</p>
-    <a href="{{ url_for('imc.index') }}">⬅ Voltar para o início</a>
+
+    <!-- Botões -->
+    <div class="actions">
+      <a href="{{ url_for('imc.index') }}" class="btn-primary">⬅ Voltar para o início</a>
+      {% if file_url %}
+      <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
+      {% endif %}
+    </div>
   </div>
 </body>
 </html>
