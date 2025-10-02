@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_from_directory
+from flask import Blueprint, request, jsonify, send_from_directory, render_template
 from urllib.parse import urljoin, quote
 import traceback
 import base64
@@ -74,6 +74,7 @@ def calculo():
 
         except Exception as e:
             print("⚠️ Erro ao enviar email:", e)
+            traceback.print_exc()
 
         # resposta para o front
         base_url = request.url_root
@@ -95,17 +96,20 @@ def calculo():
         }), 200
 
     except Exception:
+        print("=== ERRO NO CALCULO ===")
+        traceback.print_exc()
         return jsonify({
             "status": "erro",
-            "mensagem": "Erro interno",
+            "mensagem": "Erro interno no servidor",
             "trace": traceback.format_exc()
         }), 500
-from flask import render_template
 
+# rota principal
 @bp.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
 
+# rota sucesso
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
     return render_template("sucesso.html")
