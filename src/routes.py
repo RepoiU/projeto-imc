@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, send_file, session, url_for
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote
 import traceback
 import base64
 import os
@@ -35,12 +35,20 @@ def calculo():
         except ValueError:
             return jsonify({"status": "erro", "mensagem": "Peso e altura precisam ser numéricos"}), 400
 
-        # 📄 gera PDF em memória
-        buffer = io.BytesIO()
-        filename, imc, classificacao, recomendacao = gerar_pdf(
-            nome, sobrenome, cidade, numero, email, peso, altura, buffer
+        # 📄 Gera PDF (em arquivo temporário)
+        arquivo_pdf, filename, imc, classificacao, recomendacao = gerar_pdf(
+            nome, sobrenome, cidade, numero, email, peso, altura
         )
-        buffer.seek(0)
+
+        # Lê PDF e salva em memória
+        with open(arquivo_pdf, "rb") as f:
+            pdf_bytes = f.read()
+
+        # Remove arquivo físico (não precisa ficar no servidor)
+        try:
+            os.remove(arquivo_pdf)
+        except:
+            pass
 
         # envia por email
         try:
@@ -48,7 +56,7 @@ def calculo():
             from_email = os.environ.get("EMAIL_SENDER")
             to_email = email
 
-            encoded_file = base64.b64encode(buffer.getvalue()).decode()
+            encoded_file = base64.b64encode(pdf_bytes).decode()
 
             attachment = Attachment(
                 FileContent(encoded_file),
@@ -76,13 +84,11 @@ def calculo():
         except Exception as e:
             print("⚠️ Erro ao enviar email:", e)
 
-        # ✅ Salva PDF na sessão (base64)
-        session["pdf_data"] = base64.b64encode(buffer.getvalue()).decode()
+        # ✅ Salva PDF em sessão
+        session["pdf_data"] = base64.b64encode(pdf_bytes).decode()
         session["pdf_name"] = filename
 
-        # passa o link da rota de download
         file_url = url_for("imc.download")
-
         return render_template("sucesso.html", file_url=file_url)
 
     except Exception:
@@ -104,7 +110,7 @@ def sucesso():
     return render_template("sucesso.html", file_url=file_url)
 
 
-# 🔥 Rota para baixar o PDF da sessão
+# 🔥 Rota para baixar PDF da sessão
 @bp.route("/arquivo/download", methods=["GET"])
 def download():
     pdf_data = session.get("pdf_data")
