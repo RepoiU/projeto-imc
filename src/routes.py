@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify, render_template, send_from_directory, session  # ✅ adicionado session aqui
-from urllib.parse import urljoin, quote
+from flask import Blueprint, request, jsonify, render_template, send_file, session, url_for
+from urllib.parse import urljoin
 import traceback
 import base64
 import os
+import io
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
@@ -34,10 +35,12 @@ def calculo():
         except ValueError:
             return jsonify({"status": "erro", "mensagem": "Peso e altura precisam ser numéricos"}), 400
 
-        # gera pdf
-        arquivo_pdf, filename, imc, classificacao, recomendacao = gerar_pdf(
-            nome, sobrenome, cidade, numero, email, peso, altura
+        # 📄 gera PDF em memória
+        buffer = io.BytesIO()
+        filename, imc, classificacao, recomendacao = gerar_pdf(
+            nome, sobrenome, cidade, numero, email, peso, altura, buffer
         )
+        buffer.seek(0)
 
         # envia por email
         try:
@@ -45,9 +48,7 @@ def calculo():
             from_email = os.environ.get("EMAIL_SENDER")
             to_email = email
 
-            with open(arquivo_pdf, "rb") as f:
-                file_data = f.read()
-                encoded_file = base64.b64encode(file_data).decode()
+            encoded_file = base64.b64encode(buffer.getvalue()).decode()
 
             attachment = Attachment(
                 FileContent(encoded_file),
@@ -75,14 +76,13 @@ def calculo():
         except Exception as e:
             print("⚠️ Erro ao enviar email:", e)
 
-        # URL pública do arquivo
-        base_url = request.url_root
-        file_url = urljoin(base_url, f"arquivo/{quote(filename)}")
+        # ✅ Salva PDF na sessão (base64)
+        session["pdf_data"] = base64.b64encode(buffer.getvalue()).decode()
+        session["pdf_name"] = filename
 
-        # ✅ Salva na sessão para reaproveitar em /sucesso
-        session["file_url"] = file_url
+        # passa o link da rota de download
+        file_url = url_for("imc.download")
 
-        # renderiza a página de sucesso passando o link para download
         return render_template("sucesso.html", file_url=file_url)
 
     except Exception:
@@ -100,13 +100,19 @@ def index():
 
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    # ✅ Recupera da sessão para garantir que sempre tenha o file_url
-    file_url = session.get("file_url")
+    file_url = url_for("imc.download") if "pdf_data" in session else None
     return render_template("sucesso.html", file_url=file_url)
 
 
-# 🔥 Nova rota para servir os relatórios PDF
-@bp.route("/arquivo/<path:filename>", methods=["GET"])
-def download(filename):
-    pasta_resultados = os.path.join(os.path.dirname(__file__), "resultados")
-    return send_from_directory(pasta_resultados, filename, as_attachment=True)
+# 🔥 Rota para baixar o PDF da sessão
+@bp.route("/arquivo/download", methods=["GET"])
+def download():
+    pdf_data = session.get("pdf_data")
+    pdf_name = session.get("pdf_name", "relatorio.pdf")
+
+    if not pdf_data:
+        return "Arquivo não encontrado", 404
+
+    buffer = io.BytesIO(base64.b64decode(pdf_data))
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=pdf_name, mimetype="application/pdf")
