@@ -16,9 +16,11 @@ __pycache__/
 *.log
 *.tmp
 
-# PDFs gerados
-back-end/resultados/
-*.pdf
+# PDFs gerados (somente dentro da pasta resultados)
+resultados/*.pdf
+
+# Mas mantém o template.pdf no repositório
+!src/template.pdf
 
 # ===================================
 # Node / Front-end
