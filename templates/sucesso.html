@@ -11,7 +11,7 @@
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <img src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Novatra Logo" class="logo">
+      <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Novatra Logo" class="logo">
     </div>
 
     <h1>Relatório enviado com sucesso! 🎉</h1>
@@ -20,12 +20,27 @@
     <!-- Botões -->
     <div class="actions">
       <a href="{{ url_for('imc.index') }}" class="btn-primary">⬅ Voltar para o início</a>
-
-      {# Só mostra o botão de download se realmente tiver file_url #}
       {% if file_url %}
-        <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
+      <a href="{{ file_url }}" class="btn-secondary" download>⬇ Baixar Relatório</a>
       {% endif %}
     </div>
   </div>
+
+  <script>
+    // Aplica o tema salvo no localStorage
+    document.addEventListener("DOMContentLoaded", () => {
+      const theme = localStorage.getItem("theme") || "light";
+      const body = document.body;
+      const logo = document.getElementById("logo");
+
+      if (theme === "dark") {
+        body.classList.add("dark");
+        logo.src = "{{ url_for('static', filename='img/novatra_logo_white.png') }}";
+      } else {
+        body.classList.remove("dark");
+        logo.src = "{{ url_for('static', filename='img/novatra_logo_black.png') }}";
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template, send_from_directory
 from urllib.parse import urljoin, quote
 import traceback
 import base64
@@ -79,9 +79,7 @@ def calculo():
         base_url = request.url_root
         file_url = urljoin(base_url, f"arquivo/{quote(filename)}")
 
-        # 🔥 ALTERAÇÃO AQUI
-        # em vez de retornar JSON, agora renderiza o sucesso.html
-        # e já passa o file_url para o botão de download funcionar
+        # renderiza a página de sucesso passando o link para download
         return render_template("sucesso.html", file_url=file_url)
 
     except Exception:
@@ -99,6 +97,12 @@ def index():
 
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    # 🔥 ALTERAÇÃO AQUI
-    # adicionamos file_url=None para não quebrar caso a pessoa acesse direto /sucesso
+    # se abrir direto /sucesso sem passar file_url, não quebra
     return render_template("sucesso.html", file_url=None)
+
+
+# 🔥 Nova rota para servir os relatórios PDF
+@bp.route("/arquivo/<path:filename>", methods=["GET"])
+def download(filename):
+    pasta_resultados = os.path.join(os.path.dirname(__file__), "resultados")
+    return send_from_directory(pasta_resultados, filename, as_attachment=True)
