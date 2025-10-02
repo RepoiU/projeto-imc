@@ -1,0 +1,52 @@
+# ===================================
+# Python / Back-end
+# ===================================
+
+# Ambiente virtual
+venv/
+back-end/venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos temporários
+*.log
+*.tmp
+
+# PDFs gerados
+back-end/resultados/
+*.pdf
+
+# ===================================
+# Node / Front-end
+# ===================================
+
+# Dependências
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===================================
+# IDEs / Editores
+# ===================================
+.vscode/
+.idea/
+
+# ===================================
+# Arquivos do sistema
+# ===================================
+.DS_Store
+Thumbs.db
+
+# ===================================
+# Configurações sensíveis
+# ===================================
+.env
