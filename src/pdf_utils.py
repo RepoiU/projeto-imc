@@ -76,15 +76,15 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
 
     c.setFont("Helvetica", 10)
 
-    c.drawString(230, 620, nome)          # Nome (↓ 15 pontos)
-    c.drawString(230, 600, sobrenome)     # Sobrenome (↓ 15)
-    c.drawString(230, 580, cidade)        # Cidade (↓ 15)
+    c.drawString(230, 625, nome)          # Nome (↓ 15 pontos)
+    c.drawString(230, 605, sobrenome)     # Sobrenome (↓ 15)
+    c.drawString(230, 585, cidade)        # Cidade (↓ 15)
     c.drawString(230, 565, numero)        # Número (↓ 15)
     c.drawString(230, 550, email)         # Email (↑ 15)
     c.drawString(230, 530, f"{peso} kg")  # Peso
-    c.drawString(230, 510, f"{altura} m") # Altura
+    c.drawString(230, 513, f"{altura} m") # Altura
     c.drawString(230, 495, f"{imc} ({classificacao})") # IMC
-    c.drawString(230, 450, hoje)          # Data da Avaliação (↑ 15)
+    c.drawString(230, 475, hoje)          # Data da Avaliação (↑ 15)
 
 
 
