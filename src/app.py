@@ -1,26 +1,5 @@
 from flask import Flask
-from src import routes
-import requests
-from flask import request, jsonify
-
-SECRET_KEY = "6Lcqd90rAAAAACt6GxbIs2GUX3HC5jRCqwfQc427"
-
-@bp.route("/calculo", methods=["POST"])
-def calculo():
-    # Captura o token do reCAPTCHA
-    recaptcha_response = request.form.get("g-recaptcha-response") or request.json.get("g-recaptcha-response")
-    
-    # Valida com Google
-    data = {
-        'secret': SECRET_KEY,
-        'response': recaptcha_response
-    }
-    r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
-    result = r.json()
-
-    if not result.get("success"):
-        return jsonify({"mensagem": "Verificação reCAPTCHA falhou"}), 400
-
+from src import routes  # importa o blueprint
 
 def create_app():
     app = Flask(
@@ -28,7 +7,7 @@ def create_app():
         template_folder="../templates",   # HTMLs
         static_folder="../static"        # CSS, JS, imagens
     )
-    app.register_blueprint(routes.bp)
+    app.register_blueprint(routes.bp)  # registra o blueprint
     return app
 
 # 🔹 Instância global (Render/Gunicorn precisa disso)
