@@ -10,7 +10,7 @@ from .helpers import formatar_numero
 bp = Blueprint("imc", __name__)
 
 # 🔑 Chave secreta do Google reCAPTCHA (troque pela sua)
-SECRET_KEY = "S6Lcqd90rAAAAAOph8TCF3wn4bSIpgKgmxXy4OcQR"
+SECRET_KEY = "6Lcqd90rAAAAACt6GxbIs2GUX3HC5jRCqwfQc427"
 
 @bp.route("/calculo", methods=["POST"])
 def calculo():
