@@ -23,6 +23,20 @@ def draw_debug_grid(c, width, height, step_x=50, step_y=25):
 
 
 def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False):
+    """
+    Gera um relatório de IMC com base nos templates e preenche
+    automaticamente os dados do cliente na página 2.
+    
+    :param nome: Nome do cliente
+    :param sobrenome: Sobrenome do cliente
+    :param cidade: Cidade do cliente
+    :param numero: Número de telefone
+    :param email: Email do cliente
+    :param peso: Peso em kg
+    :param altura: Altura em metros
+    :param debug: Se True, desenha a grade de coordenadas no PDF
+    :return: caminho do arquivo, nome do arquivo, valor do IMC, classificação e recomendação
+    """
     base_dir, pasta_resultados, _ = _paths()
 
     # calcula IMC e classificação
@@ -60,16 +74,16 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     if debug:
         draw_debug_grid(c, width, height)
 
-    # ajusta posições de acordo com a tabela do PDF
-    c.drawString(250, 640, nome)        # Nome
-    c.drawString(250, 615, sobrenome)   # Sobrenome
-    c.drawString(250, 590, cidade)      # Cidade
-    c.drawString(250, 565, numero)      # Número
-    c.drawString(250, 540, email)       # Email
-    c.drawString(250, 515, f"{peso} kg")
-    c.drawString(250, 490, f"{altura} m")
-    c.drawString(250, 465, f"{imc} ({classificacao})")
-    c.drawString(250, 440, hoje)        # Data da Avaliação
+    # posições ajustadas
+    c.drawString(150, 675, nome)         # Nome
+    c.drawString(150, 645, sobrenome)    # Sobrenome
+    c.drawString(150, 615, cidade)       # Cidade
+    c.drawString(150, 585, numero)       # Número
+    c.drawString(150, 555, email)        # Email
+    c.drawString(150, 525, f"{peso} kg")
+    c.drawString(150, 495, f"{altura} m")
+    c.drawString(150, 465, f"{imc} ({classificacao})")
+    c.drawString(150, 435, hoje)         # Data da Avaliação
 
     c.save()
     packet.seek(0)
