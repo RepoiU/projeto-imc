@@ -1,5 +1,26 @@
 from flask import Flask
 from src import routes
+import requests
+from flask import request, jsonify
+
+SECRET_KEY = "SUA_SECRET_KEY_AQUI"
+
+@bp.route("/calculo", methods=["POST"])
+def calculo():
+    # Captura o token do reCAPTCHA
+    recaptcha_response = request.form.get("g-recaptcha-response") or request.json.get("g-recaptcha-response")
+    
+    # Valida com Google
+    data = {
+        'secret': SECRET_KEY,
+        'response': recaptcha_response
+    }
+    r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
+    result = r.json()
+
+    if not result.get("success"):
+        return jsonify({"mensagem": "Verificação reCAPTCHA falhou"}), 400
+
 
 def create_app():
     app = Flask(
