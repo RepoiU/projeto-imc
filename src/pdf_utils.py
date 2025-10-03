@@ -1,5 +1,4 @@
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
 from pypdf import PdfReader, PdfWriter
 from datetime import datetime
 import io
@@ -27,6 +26,16 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     """
     Gera um relatório de IMC com base nos templates e preenche
     automaticamente os dados do cliente na página 2.
+
+    :param nome: Nome do cliente
+    :param sobrenome: Sobrenome do cliente
+    :param cidade: Cidade do cliente
+    :param numero: Número de telefone
+    :param email: Email do cliente
+    :param peso: Peso em kg
+    :param altura: Altura em metros
+    :param debug: Se True, desenha a grade de coordenadas no PDF
+    :return: caminho do arquivo, nome do arquivo, valor do IMC, classificação e recomendação
     """
     base_dir, pasta_resultados, _ = _paths()
 
@@ -59,99 +68,4 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     c = canvas.Canvas(packet, pagesize=(width, height))
     c.setFont("Helvetica", 12)
 
-    hoje = datetime.now().strftime("%d/%m/%Y")
-
-    # 🔧 ativa grid se debug=True
-    if debug:
-        draw_debug_grid(c, width, height)
-
-    # posições ajustadas (precisam ser calibradas com o debug_template)
-    c.drawString(150, 675, nome)         # Nome
-    c.drawString(150, 645, sobrenome)    # Sobrenome
-    c.drawString(150, 615, cidade)       # Cidade
-    c.drawString(150, 585, numero)       # Número
-    c.drawString(150, 555, email)        # Email
-    c.drawString(150, 525, f"{peso} kg")
-    c.drawString(150, 495, f"{altura} m")
-    c.drawString(150, 465, f"{imc} ({classificacao})")
-    c.drawString(150, 435, hoje)         # Data da Avaliação
-
-    c.save()
-    packet.seek(0)
-    overlay_pdf = PdfReader(packet)
-
-    # escreve no PDF final
-    output_pdf = PdfWriter()
-    for i, page in enumerate(reader.pages):
-        if i == 1:  # sobrescreve apenas a página 2
-            page.merge_page(overlay_pdf.pages[0])
-        output_pdf.add_page(page)
-
-    # salva arquivo
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{nome}_{timestamp}_relatorio.pdf"
-    arquivo = os.path.join(pasta_resultados, filename)
-
-    with open(arquivo, "wb") as f_out:
-        output_pdf.write(f_out)
-
-    return arquivo, filename, imc, classificacao, recomendacao
-
-
-def gerar_debug_template(template_name="imc_normal.pdf"):
-    """
-    Gera um PDF de debug com grid sobre o template escolhido (página 2).
-    Exemplo: gerar_debug_template("imc_sobrepeso.pdf")
-    """
-    base_dir = os.path.dirname(__file__)
-    template_path = os.path.join(base_dir, "templates", template_name)
-    pasta_resultados = os.path.join(base_dir, "resultados")
-    os.makedirs(pasta_resultados, exist_ok=True)
-
-    debug_template_path = os.path.join(pasta_resultados, f"debug_{template_name}")
-
-    # Carrega template
-    reader = PdfReader(template_path)
-    page = reader.pages[1]  # página 2
-    width = float(page.mediabox.width)
-    height = float(page.mediabox.height)
-
-    # Cria overlay com grid
-    packet = io.BytesIO()
-    c = canvas.Canvas(packet, pagesize=(width, height))
-
-    # Grade vertical
-    for x in range(0, int(width), 50):
-        c.setStrokeColorRGB(0.8, 0.2, 0.2)  # vermelho
-        c.line(x, 0, x, height)
-        c.setFillColorRGB(0, 0, 0)
-        c.drawString(x + 2, 10, str(x))
-
-    # Grade horizontal
-    for y in range(0, int(height), 25):
-        c.setStrokeColorRGB(0.2, 0.2, 0.8)  # azul
-        c.line(0, y, width, y)
-        c.setFillColorRGB(0, 0, 0)
-        c.drawString(10, y + 5, str(y))
-
-    c.setFont("Helvetica-Bold", 14)
-    c.setFillColorRGB(0, 0, 0)
-    c.drawString(150, height - 40, "DEBUG GRID SOBRE O TEMPLATE (X,Y)")
-
-    c.save()
-    packet.seek(0)
-
-    overlay_pdf = PdfReader(packet)
-
-    # Mescla overlay na página 2
-    output_pdf = PdfWriter()
-    for i, p in enumerate(reader.pages):
-        if i == 1:
-            p.merge_page(overlay_pdf.pages[0])
-        output_pdf.add_page(p)
-
-    # Salva arquivo final
-    with open(debug_template_path, "wb") as f_out:
-        output_pdf.write(f_out)
-
-    return debug_template_path
+    hoje = datet
