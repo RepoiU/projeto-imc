@@ -82,9 +82,9 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     c.drawString(270, 485, numero)        # Número (↓ 15)
     c.drawString(270, 450, email)         # Email (↑ 15)
     c.drawString(270, 415, f"{peso} kg")  # Peso
-    c.drawString(270, 385, f"{altura} m") # Altura
+    c.drawString(270, 375, f"{altura} m") # Altura
     c.drawString(270, 345, f"{imc} ({classificacao})") # IMC
-    c.drawString(270, 312, hoje)          # Data da Avaliação (↑ 15)
+    c.drawString(270, 310, hoje)          # Data da Avaliação (↑ 15)
 
 
 
