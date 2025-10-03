@@ -10,8 +10,9 @@ from .helpers import _paths
 
 
 def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura):
-    base_dir, pasta_resultados, template = _paths()
+    base_dir, pasta_resultados, _ = _paths()
 
+    # calcula IMC e classificação
     imc = calcular_imc(peso, altura)
     classificacao, recomendacao = classificar_imc(imc)
 
@@ -19,42 +20,50 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura):
     if cidade_com_uf:
         cidade = cidade_com_uf
 
-    # carrega template
-    with open(template, "rb") as f:
-        template_pdf = PdfReader(f)
-        page = template_pdf.pages[0]
-        width = float(page.mediabox.width)
-        height = float(page.mediabox.height)
+    # escolhe o template conforme classificação
+    if "Abaixo" in classificacao:
+        template = os.path.join(base_dir, "templates", "imc_abaixo.pdf")
+    elif "Normal" in classificacao:
+        template = os.path.join(base_dir, "templates", "imc_normal.pdf")
+    elif "Sobrepeso" in classificacao:
+        template = os.path.join(base_dir, "templates", "imc_sobrepeso.pdf")
+    else:
+        template = os.path.join(base_dir, "templates", "imc_obesidade.pdf")
 
-    # escreve sobre template
+    # carrega template
+    reader = PdfReader(template)
+    page = reader.pages[1]  # página 2 -> Informações do Cliente
+    width = float(page.mediabox.width)
+    height = float(page.mediabox.height)
+
+    # escreve sobre a página 2
     packet = io.BytesIO()
     c = canvas.Canvas(packet, pagesize=(width, height))
     c.setFont("Helvetica", 12)
 
-    c.drawString(90, 321, nome)
-    c.drawString(120, 291, sobrenome)
-    c.drawString(100, 261, cidade)
-    c.drawString(100, 231, numero)
-    c.drawString(90, 201, email)
+    hoje = datetime.now().strftime("%d/%m/%Y")
 
-    c.drawString(90, 171, f"{peso} kg")
-    c.drawString(90, 141, f"{altura} m")
-    c.drawString(80, 111, f"{imc} ({classificacao})")
-
-    c.drawString(50, 81, f"Recomendação: {recomendacao}")
+    # ajusta posições de acordo com a tabela do PDF (pode ajustar os Y se necessário)
+    c.drawString(250, 640, nome)        # Nome
+    c.drawString(250, 615, sobrenome)   # Sobrenome
+    c.drawString(250, 590, cidade)      # Cidade
+    c.drawString(250, 565, numero)      # Número
+    c.drawString(250, 540, email)       # Email
+    c.drawString(250, 515, f"{peso} kg")
+    c.drawString(250, 490, f"{altura} m")
+    c.drawString(250, 465, f"{imc} ({classificacao})")
+    c.drawString(250, 440, hoje)        # Data da Avaliação
 
     c.save()
     packet.seek(0)
-
     overlay_pdf = PdfReader(packet)
-    output_pdf = PdfWriter()
 
-    with open(template, "rb") as f:
-        template_pdf = PdfReader(f)
-        for i, page in enumerate(template_pdf.pages):
-            if i == 0:
-                page.merge_page(overlay_pdf.pages[0])
-            output_pdf.add_page(page)
+    # escreve no PDF final
+    output_pdf = PdfWriter()
+    for i, page in enumerate(reader.pages):
+        if i == 1:  # sobrescreve apenas a página 2
+            page.merge_page(overlay_pdf.pages[0])
+        output_pdf.add_page(page)
 
     # salva arquivo
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

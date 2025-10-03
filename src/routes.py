@@ -1,12 +1,9 @@
 from flask import Blueprint, request, jsonify, render_template
 import traceback
-import base64
-import os
-
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
 
 from .pdf_utils import gerar_pdf
+from .email_utils import enviar_email
+from .templates_email import template_email   # importa o template aqui
 from .helpers import formatar_numero
 
 bp = Blueprint("imc", __name__)
@@ -16,13 +13,13 @@ def calculo():
     try:
         data = request.get_json(force=True)
 
-        nome = data.get("nome", "").strip()
-        sobrenome = data.get("sobrenome", "").strip()
-        cidade = data.get("cidade", "").strip()
-        numero = formatar_numero(data.get("numero", "").strip())
-        email = data.get("email", "").strip()
-        altura = str(data.get("altura", "")).replace(",", ".").strip()
-        peso = str(data.get("peso", "")).replace(",", ".").strip()
+        nome = (data.get("nome") or "").strip()
+        sobrenome = (data.get("sobrenome") or "").strip()
+        cidade = (data.get("cidade") or "").strip()
+        numero = formatar_numero((data.get("numero") or "").strip())
+        email = (data.get("email") or "").strip()
+        altura = str(data.get("altura") or "").replace(",", ".").strip()
+        peso = str(data.get("peso") or "").replace(",", ".").strip()
 
         if not altura or not peso:
             return jsonify({"status": "erro", "mensagem": "Peso ou altura não informados"}), 400
@@ -33,49 +30,21 @@ def calculo():
         except ValueError:
             return jsonify({"status": "erro", "mensagem": "Peso e altura precisam ser numéricos"}), 400
 
-        # 📄 Gera PDF
+        # 📄 Gera o PDF correto (abaixo, normal, sobrepeso, obesidade)
         arquivo_pdf, filename, imc, classificacao, recomendacao = gerar_pdf(
             nome, sobrenome, cidade, numero, email, peso, altura
         )
 
-        # ✉️ Envia por email
-        try:
-            sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-            from_email = os.environ.get("EMAIL_SENDER")
-            to_email = email
+        # ✉️ Envia e-mail (usando o template bonito)
+        assunto = "Seu Relatório de IMC"
+        conteudo = template_email(nome, imc, classificacao, recomendacao)   # <<< aqui
+        enviado = enviar_email(email, assunto, conteudo, arquivo_pdf, filename)
 
-            with open(arquivo_pdf, "rb") as f:
-                file_data = f.read()
-                encoded_file = base64.b64encode(file_data).decode()
+        if not enviado:
+            return jsonify({"status": "erro", "mensagem": "Não foi possível enviar o e-mail agora."}), 502
 
-            attachment = Attachment(
-                FileContent(encoded_file),
-                FileName(filename),
-                FileType("application/pdf"),
-                Disposition("attachment")
-            )
-
-            message = Mail(
-                from_email=from_email,
-                to_emails=to_email,
-                subject="Seu Relatório de IMC",
-                html_content=f"""
-                <p>Olá <b>{nome}</b>,</p>
-                <p>Segue em anexo o seu relatório de IMC.</p>
-                <p><b>IMC:</b> {imc} ({classificacao})</p>
-                <p><b>Recomendação:</b> {recomendacao}</p>
-                <br>
-                <p>Atenciosamente, <br>Equipe Novatra</p>
-                """
-            )
-            message.attachment = attachment
-            sg.send(message)
-
-        except Exception as e:
-            print("⚠️ Erro ao enviar email:", e)
-
-        # ✅ Só mostra a tela de sucesso (sem link de download)
-        return render_template("sucesso.html", file_url=None)
+        # ✅ Tela de sucesso (sem link de download)
+        return render_template("sucesso.html")
 
     except Exception:
         return jsonify({
@@ -92,4 +61,4 @@ def index():
 
 @bp.route("/sucesso", methods=["GET"])
 def sucesso():
-    return render_template("sucesso.html", file_url=None)
+    return render_template("sucesso.html")
