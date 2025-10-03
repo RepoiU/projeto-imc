@@ -3,7 +3,7 @@ from src import routes
 import requests
 from flask import request, jsonify
 
-SECRET_KEY = "SUA_SECRET_KEY_AQUI"
+SECRET_KEY = "6Lcqd90rAAAAACt6GxbIs2GUX3HC5jRCqwfQc427"
 
 @bp.route("/calculo", methods=["POST"])
 def calculo():
