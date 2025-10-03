@@ -9,7 +9,20 @@ from .ibge_utils import buscar_municipio_ibge
 from .helpers import _paths
 
 
-def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura):
+def draw_debug_grid(c, width, height, step_x=50, step_y=25):
+    """
+    Desenha uma grade numerada para debug das posições (X,Y).
+    """
+    c.setStrokeColorRGB(0.8, 0.8, 0.8)
+    for x in range(0, int(width), step_x):
+        c.line(x, 0, x, height)
+        c.drawString(x + 2, 5, str(x))
+    for y in range(0, int(height), step_y):
+        c.line(0, y, width, y)
+        c.drawString(5, y + 5, str(y))
+
+
+def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False):
     base_dir, pasta_resultados, _ = _paths()
 
     # calcula IMC e classificação
@@ -43,7 +56,11 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura):
 
     hoje = datetime.now().strftime("%d/%m/%Y")
 
-    # ajusta posições de acordo com a tabela do PDF (pode ajustar os Y se necessário)
+    # 🔧 ativa grid se debug=True
+    if debug:
+        draw_debug_grid(c, width, height)
+
+    # ajusta posições de acordo com a tabela do PDF
     c.drawString(250, 640, nome)        # Nome
     c.drawString(250, 615, sobrenome)   # Sobrenome
     c.drawString(250, 590, cidade)      # Cidade

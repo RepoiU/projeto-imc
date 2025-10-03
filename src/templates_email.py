@@ -1,8 +1,7 @@
+# string base64 completa da logo (aqui vai a string gigante mesmo)
+LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQACAYAAAB/HSuDAAEAAElEQVR4nGT9WaIlyY5Di4H0qKlqEvrRtKU6Tr4PLNB3lqIqb2acZru5GRsQbKz+P//v/5dWI60klUrSlKQd7UotaXe1tapqaVb8sEalLkmSdkp6pFpJtdot7UrFz+736d..."  
+
 def template_email(nome, imc, classificacao, recomendacao):
-    """
-    Gera o corpo do e-mail em HTML para envio do relatório de IMC.
-    Usa a logo servida pelo Flask (pasta static/).
-    """
     return f"""
     <html>
         <body style="font-family: Arial, sans-serif; background-color:#f9f9f9; padding:20px;">
@@ -10,9 +9,7 @@ def template_email(nome, imc, classificacao, recomendacao):
                 
                 <!-- Cabeçalho -->
                 <div style="text-align:center; margin-bottom:20px;">
-                    <img src="https://projeto-imc.onrender.com/static/novatra_logo_black.png" 
-                         alt="Novatra" 
-                         style="max-width:120px; margin-bottom:10px;">
+                    <img src="{LOGO_BASE64}" alt="Novatra" style="max-width:120px; margin-bottom:10px;">
                     <h2 style="color:#2E4053;">Relatório de IMC</h2>
                 </div>
 
@@ -32,8 +29,7 @@ def template_email(nome, imc, classificacao, recomendacao):
                 <hr style="margin:30px 0;">
                 <p style="font-size:12px; color:#555; text-align:center;">
                     Este é um e-mail automático, por favor não responda.<br>
-                    🔗 <a href="https://projeto-imc.onrender.com" 
-                          style="color:#1A5276; text-decoration:none;">Acesse nosso site</a>
+                    🔗 <a href="https://projeto-imc.onrender.com" style="color:#1A5276; text-decoration:none;">Acesse nosso site</a>
                 </p>
             </div>
         </body>
