@@ -2,7 +2,6 @@ import os
 
 def _paths():
     BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    TEMPLATE_PATH = os.path.join(BASE_DIR, "templates", "template.pdf")
     RESULTADOS_PATH = os.path.join(BASE_DIR, "resultados")
 
     # cria pasta resultados se não existir
@@ -10,10 +9,9 @@ def _paths():
 
     # LOG de debug
     print("📂 BASE_DIR:", BASE_DIR)
-    print("📄 TEMPLATE_PATH:", TEMPLATE_PATH)
     print("📂 RESULTADOS_PATH:", RESULTADOS_PATH)
 
-    return BASE_DIR, RESULTADOS_PATH, TEMPLATE_PATH
+    return BASE_DIR, RESULTADOS_PATH
 
 
 def formatar_numero(numero: str) -> str:

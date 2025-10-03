@@ -37,7 +37,7 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     :param debug: Se True, desenha a grade de coordenadas no PDF
     :return: caminho do arquivo, nome do arquivo, valor do IMC, classificação e recomendação
     """
-    base_dir, pasta_resultados, _ = _paths()
+    base_dir, pasta_resultados = _paths()
 
     # calcula IMC e classificação
     imc = calcular_imc(peso, altura)
@@ -68,4 +68,40 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     c = canvas.Canvas(packet, pagesize=(width, height))
     c.setFont("Helvetica", 12)
 
-    hoje = datet
+    hoje = datetime.now().strftime("%d/%m/%Y")
+
+    # 🔧 ativa grid se debug=True
+    if debug:
+        draw_debug_grid(c, width, height)
+
+    # posições ajustadas
+    c.drawString(150, 675, nome)          # Nome
+    c.drawString(150, 645, sobrenome)     # Sobrenome
+    c.drawString(150, 615, cidade)        # Cidade
+    c.drawString(150, 585, numero)        # Número
+    c.drawString(150, 555, email)         # Email
+    c.drawString(150, 525, f"{peso} kg")
+    c.drawString(150, 495, f"{altura} m")
+    c.drawString(150, 465, f"{imc} ({classificacao})")
+    c.drawString(150, 435, hoje)          # Data da Avaliação
+
+    c.save()
+    packet.seek(0)
+    overlay_pdf = PdfReader(packet)
+
+    # escreve no PDF final
+    output_pdf = PdfWriter()
+    for i, page in enumerate(reader.pages):
+        if i == 1:  # sobrescreve apenas a página 2
+            page.merge_page(overlay_pdf.pages[0])
+        output_pdf.add_page(page)
+
+    # salva arquivo
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{nome}_{timestamp}_relatorio.pdf"
+    arquivo = os.path.join(pasta_resultados, filename)
+
+    with open(arquivo, "wb") as f_out:
+        output_pdf.write(f_out)
+
+    return arquivo, filename, imc, classificacao, recomendacao
