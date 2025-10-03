@@ -74,17 +74,17 @@ def gerar_pdf(nome, sobrenome, cidade, numero, email, peso, altura, debug=False)
     if debug:
         draw_debug_grid(c, width, height)
 
-    c.setFont("Helvetica", 20)
+    c.setFont("Helvetica", 15)
 
-    c.drawString(300, 600, nome)          # Nome (↓ 15 pontos)
-    c.drawString(300, 555, sobrenome)     # Sobrenome (↓ 15)
-    c.drawString(300, 505, cidade)        # Cidade (↓ 15)
-    c.drawString(300, 455, numero)        # Número (↓ 15)
-    c.drawString(300, 405, email)         # Email (↑ 15)
-    c.drawString(300, 355, f"{peso} kg")  # Peso
-    c.drawString(300, 305, f"{altura} m") # Altura
-    c.drawString(300, 255, f"{imc} ({classificacao})") # IMC
-    c.drawString(300, 205, hoje)          # Data da Avaliação (↑ 15)
+    c.drawString(250, 590, nome)          # Nome (↓ 15 pontos)
+    c.drawString(250, 555, sobrenome)     # Sobrenome (↓ 15)
+    c.drawString(250, 515, cidade)        # Cidade (↓ 15)
+    c.drawString(250, 490, numero)        # Número (↓ 15)
+    c.drawString(250, 455, email)         # Email (↑ 15)
+    c.drawString(250, 415, f"{peso} kg")  # Peso
+    c.drawString(250, 390, f"{altura} m") # Altura
+    c.drawString(250, 355, f"{imc} ({classificacao})") # IMC
+    c.drawString(250, 315, hoje)          # Data da Avaliação (↑ 15)
 
 
 
