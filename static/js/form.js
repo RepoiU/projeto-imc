@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
   });
 
-  // Máscara para telefone no Brasil
+  // ===== Máscara para telefone =====
   let maskTel;
   function aplicarMascaraTel() {
     if (maskTel) maskTel.destroy();
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     inputAltura.setAttribute("pattern", "[0-9,]*");
 
     inputAltura.addEventListener("input", () => {
-      let valor = inputAltura.value.replace(/\D/g, ""); // só números
+      let valor = inputAltura.value.replace(/\D/g, "");
       if (valor.length > 3) valor = valor.slice(0, 3);
       if (valor.length >= 2) {
         valor = valor[0] + "," + valor.slice(1, 3);
@@ -65,6 +65,16 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    // 🧩 Captura o token do reCAPTCHA gerado automaticamente
+    const recaptchaField = document.querySelector("#g-recaptcha-response");
+    const recaptchaToken = recaptchaField ? recaptchaField.value.trim() : "";
+
+    if (!recaptchaToken) {
+      alert("⚠️ Por favor, confirme que você não é um robô antes de enviar.");
+      return;
+    }
+
+    // Validação de altura e peso
     const alturaVal = parseFloat((form.altura.value || "0").replace(",", "."));
     const pesoVal = parseFloat((form.peso.value || "0").replace(",", "."));
 
@@ -78,13 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // 🧩 Pega o token do reCAPTCHA
-    const recaptchaToken = document.querySelector("#g-recaptcha-response")?.value;
-    if (!recaptchaToken) {
-      alert("Erro: reCAPTCHA não enviado. Por favor, confirme que você não é um robô.");
-      return;
-    }
-
+    // ===== Envio =====
     submitBtn.disabled = true;
     const originalText = submitBtn.textContent;
     submitBtn.textContent = "Enviando...";
@@ -98,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         numero: iti ? iti.getNumber() : form.numero.value.trim(),
         altura: form.altura.value.trim().replace(",", "."),
         peso: form.peso.value.trim().replace(",", "."),
-        "g-recaptcha-response": recaptchaToken, // 👈 envia o token pro backend
+        "g-recaptcha-response": recaptchaToken, // ✅ token enviado ao backend
       };
 
       const res = await fetch(form.action || "/calculo", {
@@ -108,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       const contentType = res.headers.get("content-type");
+
       if (contentType && contentType.includes("text/html")) {
         const html = await res.text();
         document.open();
