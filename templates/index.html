@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calcule seu IMC - Novatra</title>
 
-  <!-- CSS principal -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+  <!-- Google reCAPTCHA -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-  <!-- CSS intl-tel-input -->
+  <!-- CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
 </head>
 <body>
   <div class="container">
-    
-    <!-- Header com logo e switch (dark mode) -->
+
+    <!-- Header -->
     <div class="header">
       <img id="logo" src="{{ url_for('static', filename='img/novatra_logo_black.png') }}" alt="Logo Novatra" class="logo">
       <label class="switch">
@@ -28,116 +28,26 @@
     <h1>Calcule seu IMC agora!</h1>
     <p>Preencha seus dados e receba automaticamente um relatório em PDF no seu e-mail.</p>
     
-    <!-- Formulário -->
     <form id="form-imc" action="{{ url_for('imc.calculo') }}" method="post">
       <input type="text" name="nome" placeholder="Nome" required>
       <input type="text" name="sobrenome" placeholder="Sobrenome" required>
       <input type="text" name="cidade" placeholder="Cidade" required>
       <input type="email" name="email" placeholder="Email" required>
-
-      <!-- Telefone com bandeira -->
       <input id="telefone" type="tel" name="numero" placeholder="Número" required>
+      <input id="altura" type="text" name="altura" placeholder="Altura (m)" required inputmode="numeric" pattern="[0-9,]*" maxlength="4">
+      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" required inputmode="numeric" pattern="[0-9,]*" maxlength="6">
 
-      <!-- Altura e Peso -->
-      <input id="altura" type="text" name="altura" placeholder="Altura (m)" 
-             required inputmode="numeric" pattern="[0-9,]*" maxlength="4">
-      <input id="peso" type="text" name="peso" placeholder="Peso (kg)" 
-             required inputmode="numeric" pattern="[0-9,]*" maxlength="6">
-
-
-      <!-- reCAPTCHA -->
+      <!-- ✅ reCAPTCHA (dentro do form) -->
       <div class="g-recaptcha" data-sitekey="6Lcqd90rAAAAAOph8TCF3wn4bSIpgKgmxXy4OcQR"></div>
-      <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
-      <button type="submit">Gerar meu relatório ➜</button>
+      <button id="btn-enviar" type="submit">Gerar meu relatório ➜</button>
     </form>
   </div>
 
-  <!-- Libs externas -->
+  <!-- JS externos -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/imask/6.4.3/imask.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-  <!-- Seus scripts -->
   <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-
-  <script>
-    const form = document.getElementById("form-imc");
-    const inputTel = document.querySelector("#telefone");
-    const inputAltura = document.querySelector("#altura");
-    const inputPeso = document.querySelector("#peso");
-
-    // Inicializa intl-tel-input
-    const iti = window.intlTelInput(inputTel, {
-      initialCountry: "br",
-      preferredCountries: ["br", "us", "pt"],
-      separateDialCode: true
-    });
-
-    // Máscara para BR
-    let maskTel;
-    function aplicarMascaraTel() {
-      if (maskTel) maskTel.destroy();
-      if (iti.getSelectedCountryData().iso2 === "br") {
-        maskTel = IMask(inputTel, { mask: "(00) 00000-0000" });
-      }
-    }
-    inputTel.addEventListener("countrychange", aplicarMascaraTel);
-    aplicarMascaraTel();
-
-    // ===== Altura (X,XX) =====
-    inputAltura.addEventListener("input", () => {
-      let valor = inputAltura.value.replace(/\D/g, ""); // apenas dígitos
-      if (valor.length > 3) valor = valor.slice(0, 3); // limita a 3 dígitos
-
-      if (valor.length >= 2) {
-        valor = valor[0] + "," + valor.slice(1);
-      }
-      inputAltura.value = valor;
-    });
-
-    // ===== Peso (XXX,XX) =====
-    inputPeso.addEventListener("input", () => {
-      let valor = inputPeso.value.replace(/\D/g, ""); // apenas dígitos
-      if (valor.length > 5) valor = valor.slice(0, 5); // limita a 5 dígitos
-
-      if (valor.length > 2) {
-        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
-      }
-      inputPeso.value = valor;
-    });
-
-    // Envio do formulário
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      const data = {
-        nome: form.nome.value.trim(),
-        sobrenome: form.sobrenome.value.trim(),
-        cidade: form.cidade.value.trim(),
-        email: form.email.value.trim(),
-        numero: iti.getNumber(),
-        altura: form.altura.value.trim().replace(",", "."),
-        peso: form.peso.value.trim().replace(",", ".")
-      };
-
-      try {
-        const response = await fetch("{{ url_for('imc.calculo') }}", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-          window.location.href = "{{ url_for('imc.sucesso') }}";
-        } else {
-          const result = await response.json().catch(() => ({}));
-          alert("Erro: " + (result.mensagem || "Falha no envio"));
-        }
-      } catch (err) {
-        alert("Erro ao enviar: " + err);
-      }
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/form.js') }}"></script>
 </body>
 </html>

@@ -1,10 +1,8 @@
-// form.js
-
 document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("form-imc") || document.getElementById("imcForm");
+  const form = document.getElementById("form-imc");
   if (!form) return;
 
-  const submitBtn = form.querySelector("button[type=submit]");
+  const submitBtn = document.getElementById("btn-enviar");
   const inputTel = document.querySelector("#telefone");
 
   // ===== Telefone com intl-tel-input =====
@@ -12,11 +10,10 @@ document.addEventListener("DOMContentLoaded", function () {
     initialCountry: "br",
     preferredCountries: ["br", "us", "pt"],
     separateDialCode: true,
-    utilsScript:
-      "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js",
   });
 
-  // ===== Máscara para telefone =====
+  // ===== Máscara de telefone =====
   let maskTel;
   function aplicarMascaraTel() {
     if (maskTel) maskTel.destroy();
@@ -30,17 +27,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // ===== Altura (X,XX) =====
   const inputAltura = document.getElementById("altura");
   if (inputAltura) {
-    inputAltura.setAttribute("inputmode", "numeric");
-    inputAltura.setAttribute("pattern", "[0-9,]*");
-
     inputAltura.addEventListener("input", () => {
       let valor = inputAltura.value.replace(/\D/g, "");
       if (valor.length > 3) valor = valor.slice(0, 3);
-      if (valor.length >= 2) {
-        valor = valor[0] + "," + valor.slice(1, 3);
-      } else if (valor.length === 1) {
-        valor = valor[0] + ",";
-      }
+      if (valor.length >= 2) valor = valor[0] + "," + valor.slice(1, 3);
       inputAltura.value = valor;
     });
   }
@@ -48,16 +38,24 @@ document.addEventListener("DOMContentLoaded", function () {
   // ===== Peso (XXX,XX) =====
   const inputPeso = document.getElementById("peso");
   if (inputPeso) {
-    inputPeso.setAttribute("inputmode", "numeric");
-    inputPeso.setAttribute("pattern", "[0-9,]*");
-
     inputPeso.addEventListener("input", () => {
       let valor = inputPeso.value.replace(/\D/g, "");
       if (valor.length > 5) valor = valor.slice(0, 5);
-      if (valor.length > 2) {
+      if (valor.length > 2)
         valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
-      }
       inputPeso.value = valor;
+    });
+  }
+
+  // === 🧩 Captura segura do reCAPTCHA ===
+  async function getRecaptchaToken() {
+    return new Promise((resolve) => {
+      if (typeof grecaptcha === "undefined") {
+        resolve(""); // não carregou
+        return;
+      }
+      const token = grecaptcha.getResponse();
+      resolve(token);
     });
   }
 
@@ -65,33 +63,35 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // 🧩 Captura o token do reCAPTCHA gerado automaticamente
-    const recaptchaField = document.querySelector("#g-recaptcha-response");
-    const recaptchaToken = recaptchaField ? recaptchaField.value.trim() : "";
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Enviando...";
 
+    // Validação do reCAPTCHA
+    const recaptchaToken = await getRecaptchaToken();
     if (!recaptchaToken) {
       alert("⚠️ Por favor, confirme que você não é um robô antes de enviar.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
       return;
     }
 
-    // Validação de altura e peso
     const alturaVal = parseFloat((form.altura.value || "0").replace(",", "."));
     const pesoVal = parseFloat((form.peso.value || "0").replace(",", "."));
 
     if (isNaN(alturaVal) || alturaVal < 1.0) {
       alert("⚠️ Altura inválida! Insira um valor a partir de 1,00 m.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
       return;
     }
 
     if (isNaN(pesoVal) || pesoVal < 20.0) {
       alert("⚠️ Peso inválido! Insira um valor a partir de 20 kg.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
       return;
     }
-
-    // ===== Envio =====
-    submitBtn.disabled = true;
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = "Enviando...";
 
     try {
       const data = {
@@ -99,10 +99,10 @@ document.addEventListener("DOMContentLoaded", function () {
         sobrenome: form.sobrenome.value.trim(),
         cidade: form.cidade.value.trim(),
         email: form.email.value.trim(),
-        numero: iti ? iti.getNumber() : form.numero.value.trim(),
+        numero: iti.getNumber(),
         altura: form.altura.value.trim().replace(",", "."),
         peso: form.peso.value.trim().replace(",", "."),
-        "g-recaptcha-response": recaptchaToken, // ✅ token enviado ao backend
+        "g-recaptcha-response": recaptchaToken, // ✅ Agora realmente envia o token certo
       };
 
       const res = await fetch(form.action || "/calculo", {
@@ -111,19 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(data),
       });
 
-      const contentType = res.headers.get("content-type");
-
-      if (contentType && contentType.includes("text/html")) {
-        const html = await res.text();
-        document.open();
-        document.write(html);
-        document.close();
-        return;
-      }
-
-      if (res.redirected) {
-        window.location.href = res.url;
-      } else if (res.ok) {
+      if (res.ok) {
         window.location.href = "/sucesso";
       } else {
         const err = await res.json().catch(() => ({}));
