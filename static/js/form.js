@@ -35,15 +35,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     inputAltura.addEventListener("input", () => {
       let valor = inputAltura.value.replace(/\D/g, ""); // só números
-
-      if (valor.length > 3) valor = valor.slice(0, 3); // máximo 3 dígitos
-
+      if (valor.length > 3) valor = valor.slice(0, 3);
       if (valor.length >= 2) {
-        valor = valor[0] + "," + valor.slice(1, 3); // 173 -> 1,73 | 17 -> 1,7
+        valor = valor[0] + "," + valor.slice(1, 3);
       } else if (valor.length === 1) {
         valor = valor[0] + ",";
       }
-
       inputAltura.value = valor;
     });
   }
@@ -55,14 +52,11 @@ document.addEventListener("DOMContentLoaded", function () {
     inputPeso.setAttribute("pattern", "[0-9,]*");
 
     inputPeso.addEventListener("input", () => {
-      let valor = inputPeso.value.replace(/\D/g, ""); // só números
-
-      if (valor.length > 5) valor = valor.slice(0, 5); // máximo 5 dígitos
-
+      let valor = inputPeso.value.replace(/\D/g, "");
+      if (valor.length > 5) valor = valor.slice(0, 5);
       if (valor.length > 2) {
-        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2); // insere vírgula antes dos 2 últimos
+        valor = valor.slice(0, valor.length - 2) + "," + valor.slice(-2);
       }
-
       inputPeso.value = valor;
     });
   }
@@ -71,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // Validação de altura e peso antes do envio
     const alturaVal = parseFloat((form.altura.value || "0").replace(",", "."));
     const pesoVal = parseFloat((form.peso.value || "0").replace(",", "."));
 
@@ -82,6 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (isNaN(pesoVal) || pesoVal < 20.0) {
       alert("⚠️ Peso inválido! Insira um valor a partir de 20 kg.");
+      return;
+    }
+
+    // 🧩 Pega o token do reCAPTCHA
+    const recaptchaToken = document.querySelector("#g-recaptcha-response")?.value;
+    if (!recaptchaToken) {
+      alert("Erro: reCAPTCHA não enviado. Por favor, confirme que você não é um robô.");
       return;
     }
 
@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
         numero: iti ? iti.getNumber() : form.numero.value.trim(),
         altura: form.altura.value.trim().replace(",", "."),
         peso: form.peso.value.trim().replace(",", "."),
+        "g-recaptcha-response": recaptchaToken, // 👈 envia o token pro backend
       };
 
       const res = await fetch(form.action || "/calculo", {
@@ -106,7 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(data),
       });
 
-      // Se o back já retorna HTML direto
       const contentType = res.headers.get("content-type");
       if (contentType && contentType.includes("text/html")) {
         const html = await res.text();
@@ -116,7 +116,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // Se é JSON e o back manda status
       if (res.redirected) {
         window.location.href = res.url;
       } else if (res.ok) {
